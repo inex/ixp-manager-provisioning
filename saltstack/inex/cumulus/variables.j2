@@ -1,0 +1,28 @@
+{#-
+
+- the mellanox platform will not punt sflow samples if the sample rate is
+  configured to be below 34463. 
+
+-#}
+
+
+{%-
+
+set vars = {
+    'sflow': {
+        'collector': '10.39.5.181',
+        'samplerate': {
+            'default': 8192,
+            1000:      1024,
+            10000:     4096,
+            40000:     8192,
+            100000:    32768,
+        },
+    },
+    'snmp': {
+        'defaultcommunity': 'foobar',
+    },
+}
+
+%}
+

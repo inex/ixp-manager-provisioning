@@ -1,0 +1,26 @@
+#!/bin/sh
+## Copyright (C) 2017 Internet Neutral Exchange Association Company Limited By Guarantee.
+## All Rights Reserved.
+##
+## restart-sflow.sh - script to set sflow to be ingress only at the correct
+## sample rate.
+##
+## Configured via SaltStack templates: all local edits will be overwritten.
+##
+
+{%- from "cumulus/variables.j2" import vars with context %}
+
+service hsflowd restart
+
+# hsflowd takes a small but noticeable (1s-2s) amount of time to settle down
+sleep 5
+
+/usr/lib/cumulus/portsamp swp\* 0  0 1
+
+{%- for iface in pillar.get('layer2interfaces', {}) %}
+
+{%- if iface.name|truncate(3, true, '') == 'swp' and iface.type == 'edge' %}
+/usr/lib/cumulus/portsamp {{ iface.name }} {{ vars.sflow.samplerate[iface.speed] | default (vars.sflow.samplerate.default) }} 0 1
+{%- endif %}
+
+{%- endfor %}

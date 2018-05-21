@@ -1,0 +1,63 @@
+{#-
+
+Copyright (C) 2009-2017 Internet Neutral Exchange Association Company Limited By Guarantee.
+All Rights Reserved.
+
+This file is part of IXP Manager.
+
+IXP Manager is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, version 2.0 of the License.
+
+IXP Manager is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License v2.0
+along with IXP Manager.  If not, see:
+
+http://www.gnu.org/licenses/gpl-2.0.html
+
+--
+
+Jinja template for bgp config
+
+-#}
+
+{%- from "cumulus/variables.j2" import vars with context -%}
+{%- set switchdata = pillar.get('switch', {}) -%}
+
+agentAddress udp:161
+
+rocommunity {{ switchdata.snmpcommunity|default(vars.snmp.defaultcommunity) }} default -V systemonly
+
+# system
+view   systemonly  included   .1.3.6.1.2.1
+# frrouting ospf6
+view   systemonly  included   .1.3.6.1.3.102
+# lldpd (Note: lldpd must be restarted with the -x option
+#     configured in order to send info to snmpd via Agent X
+view   systemonly  included   .1.0.8802.1.1.2
+# Cumulus specific
+view   systemonly  included   .1.3.6.1.4.1.40310.1
+view   systemonly  included   .1.3.6.1.4.1.40310.2
+
+# Default Cumulus Configuration
+agentxperms 777 777 snmp snmp
+agentxsocket /var/agentx/master
+createUser _snmptrapusernameX
+iquerySecName _snmptrapusernameX
+master agentx
+monitor -r 60 -o laNames -o laErrMessage "laTable" laErrorFlag != 0
+pass -p 10 1.3.6.1.2.1.1.1 /usr/share/snmp/sysDescr_pass.py
+pass_persist 1.2.840.10006.300.43 /usr/share/snmp/ieee8023_lag_pp.py
+pass_persist 1.3.6.1.2.1.17 /usr/share/snmp/bridge_pp.py
+pass_persist 1.3.6.1.2.1.31.1.1.1.18 /usr/share/snmp/snmpifAlias_pp.py
+pass_persist 1.3.6.1.2.1.47 /usr/share/snmp/entity_pp.py
+pass_persist 1.3.6.1.2.1.99 /usr/share/snmp/entity_sensor_pp.py
+pass_persist 1.3.6.1.4.1.40310.1 /usr/share/snmp/resq_pp.py
+pass_persist 1.3.6.1.4.1.40310.2 /usr/share/snmp/cl_drop_cntrs_pp.py
+rouser _snmptrapusernameX
+sysObjectID 1.3.6.1.4.1.40310
+sysServices 72

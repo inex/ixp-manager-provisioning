@@ -1,0 +1,158 @@
+{#-
+
+Copyright (C) 2009-2017 Internet Neutral Exchange Association Company Limited By Guarantee.
+All Rights Reserved.
+
+This file is part of IXP Manager.
+
+IXP Manager is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, version 2.0 of the License.
+
+IXP Manager is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License v2.0
+along with IXP Manager.  If not, see:
+
+http://www.gnu.org/licenses/gpl-2.0.html
+
+--
+
+Jinja template for core interface configuration
+
+#}
+
+{%- set bgp = pillar.get('bgp', {}) -%}
+{%- set vlans = pillar.get('vlans', {}) -%}
+
+{%- set mtu = 9216 %}
+
+{%- set interfacelist = [ ] %}
+{%- set vlanlist = [ ] %}
+
+{# We don't need to bother with this if there is only a single IP adddress
+ # available, as this implies that vxlan is not configured.
+ #}
+
+{%- if pillar.get('layer3interfaces', {}) is iterable and pillar.get('layer3interfaces', {})|length > 1 %}
+
+# layer2interfaces length: {{ pillar.get('layer2interfaces', {})|length }}
+
+{%- for vlan in vlans %}
+{%- set vniid = vlan.tag + 10000 %}
+
+auto vni{{ vniid }}
+iface vni{{ vniid }}
+    mtu {{ mtu - 50 }}
+    bridge-learning off
+    bridge-access {{ vlan.tag }}
+    bridge-arp-nd-suppress on
+    vxlan-id {{ vniid }}
+    vxlan-local-tunnelip {{ bgp.routerid }}
+    mstpctl-bpduguard yes
+    mstpctl-portbpdufilter yes
+
+auto vlan{{ vlan.tag }}
+iface vlan{{ vlan.tag }}
+    mtu {{ mtu - 50 }}
+    ip6-forward off
+    ip-forward off
+    vlan-id {{ vlan.tag }}
+    vlan-raw-device bridge
+{%- do interfacelist.append("vni{:d}".format(vniid)) %}
+
+{%- endfor %}
+
+{%- endif %}
+
+{%- for vlan in vlans %}
+{%- do vlanlist.append(vlan.tag) %}
+{%- endfor %}
+
+{%- for iface in pillar.get('layer2interfaces', {}) %}
+
+{%- set lagmaster = iface.lagmaster|default(false) %}
+{%- set lagmember = (iface.lagindex|default(false) and not lagmaster) %}
+
+# {{ iface.description|default() }}
+# lagmaster: {{ lagmaster }}
+# lagmember: {{ lagmember }}
+auto {{ iface.name }}
+iface {{ iface.name }}
+
+{%- if not iface.loopback|default(false) %}
+    mtu {{ mtu - 50 }}
+{%- endif %}
+
+{%- if iface.shutdown|default(false) %}
+    link-down yes
+{%- endif %}
+
+{%- if iface.type == 'edge' and not lagmember %}
+    mstpctl-portbpdufilter yes
+    mstpctl-portadminedge yes
+{#- bridge learning needs to be disabled in favour of programmed macs #}
+    bridge-learning off
+{%- elif iface.type == 'core' %}
+{%- if iface.stp|default(false) %}
+    mstpctl-portpathcost {{ iface.cost|default(100) }}
+{%- else %}
+    mstpctl-portbpdufilter yes
+    mstpctl-portadminedge yes
+{%- endif %}
+    bridge-learning on
+{%- endif %}
+
+{#- XXXX: do something about storm control in switchd.conf #}
+
+{%- if lagmaster %}
+    bond-slaves {{ iface.lagmembers|sort|join(" ") }}
+
+{%- if iface.fastlacp %}
+    bond-lacp-rate 1
+{%- else %}
+    bond-lacp-rate slow
+{%- endif %}
+
+{%- else %}
+
+{#- expose speed unless the port is set to autonegotiate  #}
+{%- if iface.speed|default(false) and not iface.autoneg|default(true) %}
+    link-speed {{ iface.speed }}
+{%- endif %}
+
+{%- endif %}
+
+{#-
+    bridge-unicast-flood off
+    bridge-multicast-flood off
+-#}
+
+{%- if not lagmember %}
+{%- if iface.dot1q|default(false) %}
+    bridge-vids {{ iface.vlans|map(attribute='number')|join(' ') }}
+{%- else %}
+    bridge-access {{ iface.vlans[0].number }}
+{%- endif %}
+
+{%- do interfacelist.append(iface.name) %}
+
+{%- endif %}
+
+{%- endfor %}
+
+{%- set interfacelist = interfacelist|sort|join(" ") %}
+{%- set vlanlist = vlanlist|sort|join(" ") %}
+
+{% if interfacelist|length > 1 and vlanlist|length > 1 %}
+auto bridge
+iface bridge
+    mtu {{ mtu - 50 }}
+    bridge-ports {{ interfacelist }}
+    bridge-stp on
+    bridge-vids {{ vlanlist }}
+    bridge-vlan-aware yes
+{%- endif %}

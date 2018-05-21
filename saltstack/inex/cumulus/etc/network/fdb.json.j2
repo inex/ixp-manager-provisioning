@@ -1,0 +1,34 @@
+{%- set fdbtable = [ ] %}
+
+{%- for iface in pillar.get('layer2interfaces', {}) %}
+
+{%- if iface.type == 'edge' %}
+
+{%- for vlan in iface.vlans|default([]) %}
+{%- for mac in vlan.macaddresses|default([]) %}
+
+{%- if iface.dot1q|default(false) %}
+{%- set vlantag = vlan.number %}
+{%- else %}
+{%- set vlantag = 1 %}
+{%- endif %}
+
+{%- set fdbentry = {
+    'mac': mac,
+    'dev': iface.name,
+    'vlan': vlantag,
+    'master': 'bridge',
+    'state': 'static',
+  }
+%}
+
+{%- do fdbtable.append(fdbentry) %}
+
+{%- endfor %}
+{%- endfor %}
+
+{%- endif %}
+
+{%- endfor -%}
+
+{{ fdbtable|default()|json }}

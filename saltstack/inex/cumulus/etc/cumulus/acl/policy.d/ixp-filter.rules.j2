@@ -1,0 +1,68 @@
+{#-
+
+Copyright (C) 2009-2017 Internet Neutral Exchange Association Company Limited By Guarantee.
+All Rights Reserved.
+
+This file is part of IXP Manager.
+
+IXP Manager is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, version 2.0 of the License.
+
+IXP Manager is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License v2.0
+along with IXP Manager.  If not, see:
+
+http://www.gnu.org/licenses/gpl-2.0.html
+
+--
+
+Jinja template for interface filter configuration
+
+-#}
+
+#[iptables]
+#-A FORWARD -j DROP -i swp+ -p tcp -s 10.39.200.0/24 -d 10.39.200.0/24 --dport 179
+#-A FORWARD -j DROP -i swp+ -p tcp -s 10.39.200.0/24 -d 10.39.200.0/24 --sport 179
+#
+#[ip6tables]
+#-A FORWARD -j DROP -i swp+ -p tcp -s 2001:7f8:18:200::/64 -d 2001:7f8:18:200::/64 --dport 179
+#-A FORWARD -j DROP -i swp+ -p tcp -s 2001:7f8:18:200::/64 -d 2001:7f8:18:200::/64 --sport 179
+
+{#- 
+
+- bond interfaces are filtered on the bondX pseudointerface, not on the
+  individual bearer interfaces
+- some client LAG implementations use a different src mac for LACPDUs
+
+#}
+
+[ebtables]
+{%- for iface in pillar.get('layer2interfaces', {}) %}
+{%- if iface.type == 'edge' %}
+
+# {{ iface.description|default() }}
+
+{#- permit LACPDUs for LAG bundle members #} 
+{%- if iface.lagindex|default(false) and not iface.lagmaster|default(false) %}
+# LACPDUs
+-A FORWARD -i {{ iface.name }}   -j ACCEPT  -d 01:80:c2:00:00:02  -p 0x8809
+{%- else %}
+
+{#- filter by src mac for all other physical interfaces and lag masters #}
+
+{%- for vlan in iface.vlans|default([]) %}
+{%- for mac in vlan.macaddresses|default([]) %}
+-A FORWARD -i {{ iface.name }}   -j ACCEPT  -s {{ mac }}
+{%- endfor %}
+{%- endfor %}
+
+{%- endif %}
+-A FORWARD -i {{ iface.name }}   -j DROP
+
+{%- endif %}
+{%- endfor %}

@@ -1,0 +1,23 @@
+## Copyright (C) 2017 Internet Neutral Exchange Association Company Limited By Guarantee.
+## All Rights Reserved.
+##
+## hsflowd.conf - host sflow configuration file
+##
+## Configured via SaltStack templates: all local edits will be overwritten.
+##
+
+{%- from "cumulus/variables.j2" import vars with context %}
+
+sflow {
+	DNSSD = off
+	polling = 60
+	sampling.1G =   {{ vars.sflow.samplerate.1000   | default (vars.sflow.samplerate.default) }}
+	sampling.10G =  {{ vars.sflow.samplerate.10000  | default (vars.sflow.samplerate.default) }}
+	sampling.40G =  {{ vars.sflow.samplerate.40000  | default (vars.sflow.samplerate.default) }}
+	sampling.100G = {{ vars.sflow.samplerate.100000 | default (vars.sflow.samplerate.default) }}
+
+	collector {
+		ip = {{ vars.sflow.collector }}
+		udpport = 6343
+	}
+}

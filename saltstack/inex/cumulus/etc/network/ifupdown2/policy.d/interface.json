@@ -1,0 +1,9 @@
+# Administratively disable all interfaces by default, unless they are
+# explicitly configured in /etc/network/interfaces.d
+
+{
+    "ethtool": {
+        "defaults": {
+            "link-down": true
+        },
+}
