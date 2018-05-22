@@ -1,0 +1,17 @@
+#!/bin/sh
+
+## Copyright (C) 2018 Internet Neutral Exchange Association Company Limited By Guarantee.
+## All Rights Reserved.
+##
+## /etc/rc.local - startup configuration script for Cumulus Linux
+##
+
+if [ -d /etc/rc.local.d ]; then
+  for i in /etc/rc.local.d/*.sh; do
+    if [ -x $i ]; then
+      "$i"
+    fi
+  done
+fi
+
+exit 0
