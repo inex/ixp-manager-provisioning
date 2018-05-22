@@ -1,0 +1,15 @@
+# This file controls the activity of snmpd
+
+# Don't load any MIBs by default.
+# You might comment this lines once you have the MIBs downloaded.
+#export MIBS=
+
+# snmpd control (yes means start daemon).
+SNMPDRUN=yes
+
+# By default, CL uses the "-y" flag to cache IF-MIB entries.  There is a
+# performance penalty to doing this, so it is disabled by default on CL3.x. 
+# This modified version of the snmpd defaults file omits "-y".
+
+# snmpd options (use syslog, close stdin/out/err).
+SNMPDOPTS='-LS 0-4 d -Lf /dev/null -u snmp -g snmp -I -smux -p /run/snmpd.pid'

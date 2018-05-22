@@ -9,3 +9,4 @@ include:
   - cumulus.sflow
   - cumulus.snmpd
   - cumulus.fdb
+  - cumulus.bootup
