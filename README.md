@@ -44,6 +44,7 @@ For a bigger-picture overview about how these templates hang together, we've
 done some presentations, e.g. Apricot 2018:
 
 https://2018.apricot.net/assets/files/APNT806/inex-apricot-ixp-automation-2018.pdf
+
 https://www.youtube.com/watch?v=AoJlCl4ngk0#t=37m47s
 
 Note that there is no information in these presentations about the nitty
