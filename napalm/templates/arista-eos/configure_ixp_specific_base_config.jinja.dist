@@ -65,8 +65,8 @@ snmp-server location The Data Centre, DUB01
 snmp-server community {{ switchdata.snmpcommunity|default(vars.snmp.defaultcommunity) }} ro al-ipv4-snmp-access
 
 {# this is the address range of the vxlan network #}
-no ip prefix-list pl-all-ipv4-ixp-address-range
-ip prefix-list pl-all-ipv4-ixp-address-range permit 10.254.0.0/16 le 32
+no ip prefix-list pl-all-ipv4-bgpcore-address-range
+ip prefix-list pl-all-ipv4-bgpcore-address-range permit 10.254.0.0/16 le 32
 
 no ip access-list standard al-ipv4-mgmt-access
 ip access-list standard al-ipv4-mgmt-access
