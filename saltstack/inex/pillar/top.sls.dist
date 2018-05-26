@@ -1,0 +1,21 @@
+{#-
+## Copyright (C) 2018 Internet Neutral Exchange Association Company Limited By Guarantee.
+## All Rights Reserved.
+##
+## top.sls - saltstack top file
+##
+## methodology:
+##
+##   - import all the local switches
+##   - each switch should have its own directory for pillar data.  You can
+##     symlink the files in each type of directory and it should do the
+##     right thing.  E.g.  for a cumulus switch called "ixpswitch1", create
+##     a directory called ixpswitch1/, then symlink all the files/symlinks
+##     in the cumulus/ directory to there.
+#}
+
+base:
+  ixpswitch1:
+    - ixpswitch1
+  ixpswitch2:
+    - ixpswitch2

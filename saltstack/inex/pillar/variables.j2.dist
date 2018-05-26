@@ -1,0 +1,31 @@
+{#-
+
+## Copyright (C) 2018 Internet Neutral Exchange Association Company Limited By Guarantee.
+## All Rights Reserved.
+##
+## variables.j2 - static variables for saltstack
+##
+## methodology:
+##
+##   - assign jinja variables
+
+#}
+{%
+
+set pvars = {
+  'headers':  {
+    'X-IXP-Manager-API-Key': 'myixpmanagerapikey'
+  },
+  'apiroot':        'https://www.example.org/ixp/api/v4/provisioner/',
+  'myid':           salt['grains.get']('id'),
+  'proxy': {
+    'username':	    'myswitchapiusername',
+    'passwd':	    'myswitchapipassword',
+    'enable':	    'myswitchaenablepassword',
+  },
+  'cumulus': {
+    'license':      'mycumuluslicensekey',
+  },
+}
+
+%}
