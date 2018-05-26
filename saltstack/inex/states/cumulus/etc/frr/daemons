@@ -1,35 +1,26 @@
-# This file tells the frr package which daemons to start.
-#
-# Entries are in the format: <daemon>=(yes|no|priority)
-#   0, "no"  = disabled
-#   1, "yes" = highest priority
-#   2 .. 10  = lower priorities
-# Read /usr/share/doc/frr/README.Debian for details.
-#
-# Sample configurations for these daemons can be found in
-# /usr/share/doc/frr/examples/.
-#
-# ATTENTION:
-#
-# When activation a daemon at the first time, a config file, even if it is
-# empty, has to be present *and* be owned by the user and group "frr", else
-# the daemon will not be started by /etc/init.d/frr. The permissions should
-# be u=rw,g=r,o=.
-# When using "vtysh" such a config file is also needed. It should be owned by
-# group "frrvty" and set to ug=rw,o= though. Check /etc/pam.d/frr, too.
-#
-# The watchfrr daemon is always started. Per default in monitoring-only but
-# that can be changed via /etc/frr/daemons.conf.
-#
+## Copyright (C) 2018 Internet Neutral Exchange Association Company Limited By Guarantee.
+## All Rights Reserved.
+##
+## This file is part of IXP Manager.
+##
+## IXP Manager is free software: you can redistribute it and/or modify it
+## under the terms of the GNU General Public License as published by the Free
+## Software Foundation, version 2.0 of the License.
+##
+## IXP Manager is distributed in the hope that it will be useful, but WITHOUT
+## ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+## FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+## more details.
+##
+## You should have received a copy of the GNU General Public License v2.0
+## along with IXP Manager.  If not, see:
+##
+## http://www.gnu.org/licenses/gpl-2.0.html
+##
+## --
+##
+## start FRR daemons
+##
+
 zebra=yes
 bgpd=yes
-ospfd=no
-ospf6d=no
-ripd=no
-ripngd=no
-isisd=no
-pimd=no
-ldpd=no
-nhrpd=no
-eigrpd=no
-babeld=no
