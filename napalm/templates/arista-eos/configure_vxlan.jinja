@@ -1,0 +1,53 @@
+{#
+
+Copyright (C) 2009-2018 Internet Neutral Exchange Association Company Limited By Guarantee.
+All Rights Reserved.
+
+This file is part of IXP Manager.
+
+IXP Manager is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, version 2.0 of the License.
+
+IXP Manager is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License v2.0
+along with IXP Manager.  If not, see:
+
+http://www.gnu.org/licenses/gpl-2.0.html
+
+--
+
+Jinja template for vxlan core configuration
+
+#}
+
+{% set bgp = pillar.get('bgp', {}) -%}
+{% set vlans = pillar.get('vlans', {}) -%}
+
+vlan 999
+ name the_moon
+no spanning-tree vlan 999
+
+{% for vlan in vlans %}
+no vlan {{ vlan.tag }}
+vlan {{ vlan.tag }}
+ name {{ vlan.config_name }}
+no spanning-tree vlan {{ vlan.tag }}
+{% endfor %}
+
+no interface Vxlan1
+interface Vxlan1
+ vxlan source-interface Loopback0
+
+{% for vlan in vlans %}
+ vxlan vlan {{ vlan.tag }} vni {{ vlan.tag + 10000 }}
+{% endfor %}
+
+ no vxlan flood vtep
+{% for routerid in bgp.floodlist %}
+ vxlan flood vtep add {{ routerid }}
+{% endfor %}

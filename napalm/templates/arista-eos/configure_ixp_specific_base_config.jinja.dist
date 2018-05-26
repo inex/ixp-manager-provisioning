@@ -1,0 +1,90 @@
+{#
+
+Copyright (C) 2009-2018 Internet Neutral Exchange Association Company Limited By Guarantee.
+All Rights Reserved.
+
+This file is part of IXP Manager.
+
+IXP Manager is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, version 2.0 of the License.
+
+IXP Manager is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License v2.0
+along with IXP Manager.  If not, see:
+
+http://www.gnu.org/licenses/gpl-2.0.html
+
+--
+
+Jinja template for Arista EOS base switch config
+
+#}
+
+hostname {{ pillar.proxy.host }}
+ip domain-name example.org
+
+ip name-server vrf default 10.0.0.1
+
+vlan internal allocation policy descending
+spanning-tree mode mstp
+
+tacacs-server host 10.0.0.1 key mytacacsserverkey
+
+aaa authentication login default group tacacs+ local
+
+no aaa root
+
+enable secret sha512 $6$foobar$foo
+username admin role network-admin privilege 15 secret sha512 $6$foobar$foo
+
+management api http-commands
+ no shutdown
+
+sflow sample 8192
+sflow polling-interval 30
+sflow destination 10.0.0.1
+sflow source {{ pillar.bgp.routerid }}
+sflow run
+
+logging buffered 65536
+logging trap debugging
+logging host 10.0.0.1
+
+ntp server ntp0.example.org
+ntp server ntp1.example.org
+clock timezone Europe/Dublin
+
+snmp-server contact IXP Operations <support@example.org>
+snmp-server location The Data Centre, DUB01
+snmp-server community {{ switchdata.snmpcommunity|default(vars.snmp.defaultcommunity) }} ro al-ipv4-snmp-access
+
+{# this is the address range of the vxlan network #}
+no ip prefix-list pl-all-ipv4-ixp-address-range
+ip prefix-list pl-all-ipv4-ixp-address-range permit 10.254.0.0/16 le 32
+
+no ip access-list standard al-ipv4-mgmt-access
+ip access-list standard al-ipv4-mgmt-access
+   10 permit 10.0.0.0/24
+
+no ip access-list standard al-ipv4-snmp-access
+ip access-list standard al-ipv4-snmp-access
+   10 permit 10.0.0.0/24
+
+{# this is the ipv4 address range of the peering lan #}
+no ipv6 access-list acl-ipv6-permit-all-except-bgp
+ipv6 access-list acl-ipv6-permit-all-except-bgp
+ deny tcp 2001:db8::/64 eq bgp 2001:db8::/64
+ deny tcp 2001:db8::/64 2001:db8::/64 eq bgp
+ permit ipv6 any any
+
+{# this is the ipv4 address range of the peering lan #}
+no ip access-list acl-ipv4-permit-all-except-bgp
+ip access-list acl-ipv4-permit-all-except-bgp
+ deny tcp 192.0.2.0/24 eq bgp 192.0.2.0/24
+ deny tcp 192.0.2.0/24 192.0.2.0/24 eq bgp
+ permit ip any any

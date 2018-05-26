@@ -1,0 +1,97 @@
+{#
+
+Copyright (C) 2009-2018 Internet Neutral Exchange Association Company Limited By Guarantee.
+All Rights Reserved.
+
+This file is part of IXP Manager.
+
+IXP Manager is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, version 2.0 of the License.
+
+IXP Manager is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License v2.0
+along with IXP Manager.  If not, see:
+
+http://www.gnu.org/licenses/gpl-2.0.html
+
+--
+
+Jinja template for bgp config
+
+#}
+
+{% set bgp = pillar.get('bgp') %}
+
+ip routing
+
+no route-map rm-ibgp-ipv4-import-connected
+route-map rm-ibgp-ipv4-import-connected permit 10
+   match ip address prefix-list pl-all-ipv4-ixp-address-range
+
+{% if bgp.local_as is number %}
+
+no router bgp {{ bgp.local_as }}
+router bgp {{ bgp.local_as }}
+   no bgp default ipv4-unicast
+   bgp always-compare-med
+   maximum-paths 8 ecmp 8
+   redistribute connected route-map rm-ibgp-ipv4-import-connected
+exit
+
+{% if bgp.out is iterable %}
+{% for pgname, peergroup in bgp.out.iteritems() %}
+{% set rmname =  pgname|replace('pg-', 'rm-') %}
+
+no route-map {{ rmname }}-in
+route-map {{ rmname }}-in permit 10
+   match ip address prefix-list pl-all-ipv4-ixp-address-range
+exit
+
+no route-map {{ rmname }}-out
+route-map {{ rmname }}-out permit 10
+   match ip address prefix-list pl-all-ipv4-ixp-address-range
+{% if peergroup.defaultcost|default(false) %}
+   set metric {{ peergroup.defaultcost }}
+{% endif %}
+exit
+
+router bgp {{ bgp.local_as }}
+   neighbor {{ pgname }} peer-group
+   neighbor {{ pgname }} description eBGP IXP session policy
+   neighbor {{ pgname }} fall-over bfd
+   neighbor {{ pgname }} soft-reconfiguration inbound all
+   neighbor {{ pgname }} timers 3 10
+   neighbor {{ pgname }} route-map {{ rmname }}-in in
+   neighbor {{ pgname }} route-map {{ rmname }}-out out
+   neighbor {{ pgname }} send-community
+exit
+
+{% if peergroup.neighbors is iterable %}
+{% for remoteip, neighbor in peergroup.neighbors.iteritems() %}
+
+router bgp {{ bgp.local_as }}
+   neighbor {{ remoteip }} peer-group {{ pgname }}
+   neighbor {{ remoteip }} remote-as {{ neighbor.remote_as }}
+   neighbor {{ remoteip }} description {{ neighbor.description }}
+{% if neighbor.cost|default(false) is number %}
+   neighbor {{ remoteip }} metric-out {{ neighbor.cost }}
+{% endif %}
+   address-family ipv4
+      neighbor {{ remoteip }} activate
+   exit
+exit
+
+{% endfor %}
+
+{% endif %}
+
+{% endfor %}
+
+{% endif %}
+
+{% endif %}

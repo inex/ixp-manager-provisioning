@@ -1,0 +1,137 @@
+{#
+
+Copyright (C) 2009-2018 Internet Neutral Exchange Association Company Limited By Guarantee.
+All Rights Reserved.
+
+This file is part of IXP Manager.
+
+IXP Manager is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the Free
+Software Foundation, version 2.0 of the License.
+
+IXP Manager is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+more details.
+
+You should have received a copy of the GNU General Public License v2.0
+along with IXP Manager.  If not, see:
+
+http://www.gnu.org/licenses/gpl-2.0.html
+
+--
+
+Jinja template for IXP participant interface configuration
+
+#}
+
+{% if pillar.get('layer2interfaces') is iterable %}
+{% for iface in pillar.get('layer2interfaces') %}
+
+default interface {{ iface.name }}
+interface {{ iface.name }}
+ load-interval 30
+
+{% if iface.description|default(false) is string %}
+
+{%- if iface.type == 'core' %}
+{%- set tag = 'Core: ' %}
+{%- else %}
+{%- set tag = 'Cust: ' %}
+{%- endif %}
+
+ description {{ tag }}{{ iface.description }}
+{% endif %}
+
+{% if not iface.lagmaster|default(false) %}
+{# these parameters can only appear on a non-Port-Channel interface #}
+
+{# interface speed on Arista boxes is hard to configure #}
+{% if iface.speed == 100 %}
+ speed forced 100full
+{% elif iface.speed == 1000 %}
+{% if not iface.autoneg|default(false) %}
+ speed forced 1000full
+{% else %}
+ speed auto
+{% endif %}
+{% elif iface.speed == 10000 %}
+{# speed auto #}
+{% elif iface.speed == 40000 %}
+ speed forced 40gfull
+{% elif iface.speed == 100000 %}
+ speed forced 100gfull
+{% endif %}
+
+{%- if iface.type == 'edge' %}
+ no lldp transmit
+ no lldp receive
+ sflow enable
+{% endif %}
+
+{% endif %}
+
+{% if iface.lagmaster|default(false) or not iface.lagindex|default(false) %}
+
+{%- if iface.type == 'edge' %}
+ storm-control broadcast level 0.01
+ storm-control multicast level 0.01
+{%- else %}
+ no sflow enable
+{% endif %}
+
+ spanning-tree portfast
+ spanning-tree bpdufilter enable
+
+  {% if iface.dot1q %}
+ switchport mode trunk
+ switchport trunk native vlan 999
+ switchport trunk allowed vlan {{ iface.vlans|map(attribute='number')|join(', ') }}
+  {% else %}
+ switchport mode access
+ switchport access vlan {{ iface.vlans[0].number }}
+  {% endif %}
+
+  {% if iface.type == 'edge' and iface.virtualinterfaceid|default(false) is number %}
+ mac access-group l2acl-ixp-viid{{ iface.virtualinterfaceid }} in
+  {% endif %}
+
+{% else %}
+  {# EOS pushes all this configuration to the LAG master interface #}
+ channel-group {{ iface.lagindex }} mode active
+{% if iface.fastlacp|default(false) %}
+  lacp rate fast
+{% endif %}
+{% endif %}
+
+{% if iface.shutdown|default(false) %}
+ shutdown
+{% endif %}
+
+{% if iface.type == 'edge' and iface.virtualinterfaceid|default(false) is number %}
+no mac access-list l2acl-ixp-viid{{ iface.virtualinterfaceid }}
+mac access-list l2acl-ixp-viid{{ iface.virtualinterfaceid }}
+
+{% for vlan in iface.vlans|sort %}
+
+  {# This doesn't work for the moment #}
+  {% if iface.dot1q == True and False %}
+    {% set vlantag %}vlan {{vlan.number}} 0x000{% endset %}
+  {% else %}
+    {% set vlantag = '' %}
+  {% endif %}
+
+  {% if vlan.macaddresses %}
+    {% for mac in vlan.macaddresses|sort %}
+ permit {{ vlantag }} {{ mac }} 00:00:00:00:00:00 any
+    {% endfor %}
+  {% else %}
+ deny {{ vlantag }} any any
+  {% endif %}
+
+{% endfor %}
+
+{% endif %}
+
+{% endfor %}
+{% endif %}
