@@ -1,0 +1,33 @@
+{#-
+## Copyright (C) 2018 Internet Neutral Exchange Association Company Limited By Guarantee.
+## All Rights Reserved.
+##
+## variables.j2 - static variables for saltstack states
+##
+## methodology:
+##
+##   - assign important variables
+##
+##   - the mellanox spectrum platform will not punt sflow samples if the
+##     sample rate is configured to be less than 34463.
+#}
+
+{%-
+
+set vars = {
+    'sflow': {
+        'collector': 'x.y.z.w',
+        'samplerate': {
+            'default': 8192,
+            1000:      1024,
+            10000:     4096,
+            40000:     8192,
+            100000:    32768,
+        },
+    },
+    'snmp': {
+        'defaultcommunity': 'public',
+    },
+}
+
+%}
