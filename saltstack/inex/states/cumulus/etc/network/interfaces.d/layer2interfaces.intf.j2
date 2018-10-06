@@ -40,7 +40,8 @@
 
 {%- if pillar.get('layer3interfaces', {}) is iterable and pillar.get('layer3interfaces', {})|length > 1 %}
 
-# layer2interfaces length: {{ pillar.get('layer2interfaces', {})|length }}
+# layer2interfaces
+# number of interfaces: {{ pillar.get('layer2interfaces', {})|length }}
 
 {%- for vlan in vlans %}
 {%- set vniid = vlan.tag + 10000 %}
@@ -79,8 +80,11 @@ iface vlan{{ vlan.tag }}
 {%- set lagmember = (iface.lagindex|default(false) and not lagmaster) %}
 
 # {{ iface.description|default() }}
+# type:      {{ iface.type }}
 # lagmaster: {{ lagmaster }}
 # lagmember: {{ lagmember }}
+# stp:       {{ iface.stp|default(false) }}
+# speed:     {{ iface.speed|default(0) }}
 auto {{ iface.name }}
 iface {{ iface.name }}
 
