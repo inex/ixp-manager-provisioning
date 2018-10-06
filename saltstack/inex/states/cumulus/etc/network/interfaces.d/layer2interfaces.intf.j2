@@ -92,7 +92,8 @@ iface {{ iface.name }}
     link-down yes
 {%- endif %}
 
-{%- if iface.type == 'edge' and not lagmember %}
+{%- if not lagmember %}
+{%- if iface.type == 'edge' %}
     mstpctl-portbpdufilter yes
     mstpctl-portadminedge yes
 {#- bridge learning needs to be disabled in favour of programmed macs #}
@@ -105,6 +106,7 @@ iface {{ iface.name }}
     mstpctl-portadminedge yes
 {%- endif %}
     bridge-learning on
+{%- endif %}
 {%- endif %}
 
 {#- XXXX: do something about storm control in switchd.conf #}
