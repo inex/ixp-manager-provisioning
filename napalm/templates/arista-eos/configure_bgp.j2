@@ -45,7 +45,7 @@ router bgp {{ bgp.local_as }}
 exit
 
 {% if bgp.out is iterable %}
-{% for pgname, peergroup in bgp.out.iteritems() %}
+{% for pgname, peergroup in bgp.out.items() %}
 {% set rmname =  pgname|replace('pg-', 'rm-') %}
 
 no route-map {{ rmname }}-in
@@ -73,7 +73,7 @@ router bgp {{ bgp.local_as }}
 exit
 
 {% if peergroup.neighbors is iterable %}
-{% for remoteip, neighbor in peergroup.neighbors.iteritems() %}
+{% for remoteip, neighbor in peergroup.neighbors.items() %}
 
 router bgp {{ bgp.local_as }}
    neighbor {{ remoteip }} peer-group {{ pgname }}
