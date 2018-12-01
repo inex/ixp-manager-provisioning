@@ -112,6 +112,7 @@ interface {{ iface.name }}
 {% if iface.type == 'edge' and iface.virtualinterfaceid|default(false) is number %}
 no mac access-list l2acl-ixp-viid{{ iface.virtualinterfaceid }}
 mac access-list l2acl-ixp-viid{{ iface.virtualinterfaceid }}
+ statistics per-entry
 
 {% for vlan in iface.vlans|sort %}
 
@@ -131,6 +132,8 @@ mac access-list l2acl-ixp-viid{{ iface.virtualinterfaceid }}
   {% endif %}
 
 {% endfor %}
+
+ deny any any
 
 {% endif %}
 
