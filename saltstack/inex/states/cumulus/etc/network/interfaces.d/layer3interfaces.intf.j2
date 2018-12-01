@@ -40,7 +40,7 @@ iface {{ iface.name }}
     address {{ iface.ipv4 }}
 {%- endif %}
 
-{%- if iface.speed|default(false) %}
+{%- if iface.speed|default(false) and not iface.autoneg|default(true) %}
     link-speed {{ iface.speed }}
 {%- endif %}
 
