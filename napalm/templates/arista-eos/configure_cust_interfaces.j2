@@ -114,7 +114,7 @@ no mac access-list l2acl-ixp-viid{{ iface.virtualinterfaceid }}
 mac access-list l2acl-ixp-viid{{ iface.virtualinterfaceid }}
  statistics per-entry
 
-{% for vlan in iface.vlans|sort %}
+{% for vlan in iface.vlans %}
 
   {# This doesn't work for the moment #}
   {% if iface.dot1q == True and False %}
