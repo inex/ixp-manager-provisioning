@@ -120,11 +120,12 @@ if __name__ == '__main__':
   # in both new_fdb and cur_fdb.
 
   for dev in new_fdb.keys():
-    for vlan in new_fdb[dev].keys():
-      for mac in new_fdb[dev][vlan].keys():
-        if mac in cur_fdb[dev][vlan] and cur_fdb[dev][vlan][mac] == new_fdb[dev][vlan][mac]:
-          del cur_fdb[dev][vlan][mac]
-          del new_fdb[dev][vlan][mac]
+    if dev in cur_fdb:
+      for vlan in new_fdb[dev].keys():
+        for mac in new_fdb[dev][vlan].keys():
+          if mac in cur_fdb[dev][vlan] and cur_fdb[dev][vlan][mac] == new_fdb[dev][vlan][mac]:
+            del cur_fdb[dev][vlan][mac]
+            del new_fdb[dev][vlan][mac]
 
   # when this process has finished, all the entries in cut_fdb should be
   # removed from the FDB, and all the entries in new_fdb should be added to
