@@ -126,9 +126,12 @@ iface {{ iface.name }}
 
 {%- else %}
 
-{#- expose speed unless the port is set to autonegotiate  #}
-{%- if iface.speed|default(false) and not iface.autoneg|default(true) %}
+{%- if iface.speed|default(false) %}
     link-speed {{ iface.speed }}
+{%- endif %}
+
+{%- if iface.autoneg|default(false) %}
+    link-autoneg on
 {%- endif %}
 
 {%- endif %}
