@@ -58,4 +58,4 @@
 
 {%- endfor -%}
 
-{{ fdbtable|default()|json }}
+{{ fdbtable|default()|json(indent=2) }}
