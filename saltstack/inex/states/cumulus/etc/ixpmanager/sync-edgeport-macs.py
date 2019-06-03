@@ -123,7 +123,7 @@ if __name__ == '__main__':
     if dev in cur_fdb:
       for vlan in new_fdb[dev].keys():
         for mac in new_fdb[dev][vlan].keys():
-          if mac in cur_fdb[dev][vlan] and cur_fdb[dev][vlan][mac] == new_fdb[dev][vlan][mac]:
+          if vlan in cur_fdb[dev] and mac in cur_fdb[dev][vlan] and cur_fdb[dev][vlan][mac] == new_fdb[dev][vlan][mac]:
             del cur_fdb[dev][vlan][mac]
             del new_fdb[dev][vlan][mac]
 
