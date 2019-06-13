@@ -87,7 +87,14 @@ iface vlan{{ vlan.tag }}
 # speed:     {{ iface.speed|default(0) }}
 auto {{ iface.name }}
 iface {{ iface.name }}
-    alias Cust: {{ iface.description|default() }}
+{%- if iface.description|default(false) is string %}
+{%- if iface.type == 'core' %}
+{%- set tag = 'Core: ' %}
+{%- else %}
+{%- set tag = 'Cust: ' %}
+{%- endif %}
+    alias {{ tag }}{{ iface.description }}
+{%- endif %}
 
 {%- if not iface.loopback|default(false) %}
     mtu {{ mtu - 50 }}
