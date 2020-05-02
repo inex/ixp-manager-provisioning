@@ -36,6 +36,6 @@ sflow {
 
 	collector {
 		ip = {{ vars.sflow.collector }}
-		udpport = 6343
+		udpport = {{ vars.sflow.port }}
 	}
 }

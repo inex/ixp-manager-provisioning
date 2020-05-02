@@ -35,6 +35,7 @@
 set vars = {
     'sflow': {
         'collector': 'x.y.z.w',
+        'port': 6343,
         'samplerate': {
             'default': 8192,
             1000:      1024,
