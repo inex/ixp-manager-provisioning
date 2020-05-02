@@ -41,14 +41,17 @@ route-map rm-ibgp-ipv4-import-connected permit 10
 no router bgp {{ bgp.local_as }}
 router bgp {{ bgp.local_as }}
    bgp confederation identifier {{ bgp.local_as }}
+
+{% if bgp.adjacentasns is defined and bgp.adjacentasns %}
    bgp confederation peers {{ bgp.adjacentasns.keys()|join(",") }}
+{% endif %}
    no bgp default ipv4-unicast
    bgp always-compare-med
    maximum-paths 8 ecmp 8
    redistribute connected route-map rm-ibgp-ipv4-import-connected
 exit
 
-{% if bgp.adjacentasns is iterable %}
+{% if bgp.adjacentasns is iterable and bgp.adjacentasns %}
 {% for asn, entry in bgp.adjacentasns.items() %}
 
 no route-map rm-as{{ asn }}-in
