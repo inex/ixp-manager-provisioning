@@ -28,17 +28,23 @@
 
 {%- from "cumulus/variables.j2" import vars with context %}
 
+setfile=/cumulus/switchd/config/traffic/sflow/portsamprate_set
+
 service hsflowd restart
 
 # hsflowd takes a small but noticeable (1s-2s) amount of time to settle down
 sleep 5
 
-/usr/lib/cumulus/portsamp swp\* 0  0 1
+for port in `ip link | grep swp | awk '{print $2}' | sed 's/://g'`; do
+	echo ${port}': 0, 0' > ${setfile}
+done
+
+sleep 5
 
 {%- for iface in pillar.get('layer2interfaces', {}) %}
 
 {%- if iface.name|truncate(3, true, '') == 'swp' and iface.type == 'edge' %}
-/usr/lib/cumulus/portsamp {{ iface.name }} {{ vars.sflow.samplerate[iface.speed] | default (vars.sflow.samplerate.default) }} 0 1
+echo {{ iface.name }}': '{{ vars.sflow.samplerate[iface.speed] | default (vars.sflow.samplerate.default) }}', 0' > ${setfile}
 {%- endif %}
 
 {%- endfor %}
