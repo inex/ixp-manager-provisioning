@@ -1,3 +1,4 @@
+{#
 ## Copyright (C) 2018 Internet Neutral Exchange Association Company Limited By Guarantee.
 ## All Rights Reserved.
 ##
@@ -19,11 +20,27 @@
 ##
 ## --
 ##
-## static.sls - handle Cumulus static configuration files.
-##
+## Administratively disable all interfaces by default, unless they are
+## explicitly configured in /etc/network/interfaces.d
+#}
+{% if salt['grains.get']('lsb_distrib_codename') == 'jessie' %}
+{% set defaults = {
+    'ethtool': {
+      'defaults': {
+        'link-down': true,
+      },
+    },
+  }
+%}
+{%  elif salt['grains.get']('lsb_distrib_codename') == 'buster' %}
+{%- set defaults = {
+    'ethtool': {
+      'iface_defaults': {
+        'link-down': 'yes',
+      },
+    },
+  }
+%}
+{%- endif -%}
 
-/etc/network/ifupdown2/policy.d/interface.json:
-  file.managed:
-    - source: salt://cumulus/etc/network/ifupdown2/policy.d/interface.json.j2
-    - name: /etc/network/ifupdown2/policy.d/interface.json
-    - template: jinja
+{{ defaults|json(indent=2) }}
