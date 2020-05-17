@@ -1,5 +1,3 @@
-{#
-
 ## Copyright (C) 2018 Internet Neutral Exchange Association Company Limited By Guarantee.
 ## All Rights Reserved.
 ##
@@ -21,20 +19,11 @@
 ##
 ## --
 ##
-## saltstack init file
+## static.sls - handle Cumulus static configuration files.
 ##
 
-#}
-
-include:
-  - cumulus.license
-  - cumulus.misc
-  - cumulus.layer3interfaces
-  - cumulus.frr
-  - cumulus.layer2interfaces
-  - cumulus.edge_filters
-  - cumulus.fdb
-  - cumulus.lldpd
-  - cumulus.sflow
-  - cumulus.snmpd
-  - cumulus.bootup
+/etc/network/ifupdown2/policy.d/interface.json:
+  file.managed:
+    - source: salt://cumulus/etc/network/ifupdown2/policy.d/interface.json.j2
+    - name: /etc/network/ifupdown2/policy.d/interface.json
+    - template: jinja
