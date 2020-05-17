@@ -27,3 +27,26 @@
     - source: salt://cumulus/etc/network/ifupdown2/policy.d/interface.json.j2
     - name: /etc/network/ifupdown2/policy.d/interface.json
     - template: jinja
+
+ntp-mgmt.service-kill:
+  service.dead:
+    - name: ntp@mgmt.service
+
+ntp-mgmt.service-masked:
+  service.masked:
+    - name: ntp@mgmt.service
+
+/etc/systemd/system/ntp.service.d:
+  file.directory:
+    - user: root
+    - mode: 755
+    - makedirs: true
+
+/etc/systemd/system/ntp.service.d/override.conf:
+  file.managed:
+    - source: salt://cumulus/etc/systemd/system/ntp.service.d/override.conf
+    - name: /etc/systemd/system/ntp.service.d/override.conf
+  cmd.wait:
+    - watch:
+       - file: /etc/systemd/system/ntp.service.d/override.conf
+    - name: 'systemctl daemon-reload'
