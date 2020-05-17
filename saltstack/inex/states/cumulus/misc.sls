@@ -28,6 +28,11 @@
     - name: /etc/network/ifupdown2/policy.d/interface.json
     - template: jinja
 
+{% if salt['grains.get']('lsb_distrib_codename') == 'buster' %}
+##
+## restart ntp in default vrf and kill mgmt vrf instance
+##
+
 ntp-mgmt.service-kill:
   service.dead:
     - name: ntp@mgmt.service
@@ -50,3 +55,5 @@ ntp-mgmt.service-masked:
     - watch:
        - file: /etc/systemd/system/ntp.service.d/override.conf
     - name: 'systemctl daemon-reload'
+
+{% endif %}
