@@ -29,16 +29,22 @@
 
 {%- for iface in pillar.get('layer2interfaces', {}) %}
 
+{%- set lagmaster = iface.lagmaster|default(false) %}
+{%- set lagmember = (iface.lagindex|default(false) and not lagmaster) %}
+
 {%- if iface.type == 'edge' %}
 
 {%- for vlan in iface.vlans|default([]) %}
 {%- for mac in vlan.macaddresses|default([]) %}
 
+{%- set vlantag = vlan.number %}
+{#
 {%- if iface.dot1q|default(false) %}
 {%- set vlantag = vlan.number %}
 {%- else %}
 {%- set vlantag = 1 %}
 {%- endif %}
+#}
 
 {%- set fdbentry = {
     'mac': mac,
@@ -49,7 +55,9 @@
   }
 %}
 
+{%- if not lagmember %}
 {%- do fdbtable.append(fdbentry) %}
+{%- endif %}
 
 {%- endfor %}
 {%- endfor %}
