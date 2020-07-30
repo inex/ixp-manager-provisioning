@@ -41,7 +41,7 @@ router bgp {{ bgp.local_as }}
  bgp bestpath as-path multipath-relax
 
 {%- if bgp.out is iterable %}
-{%- for pgname, peergroup in bgp.out.iteritems()|sort %}
+{%- for pgname, peergroup in bgp.out.items()|sort %}
 {%- set rmname =  pgname|replace('pg-', 'rm-') %}
 
  neighbor {{ pgname }} peer-group
@@ -50,7 +50,7 @@ router bgp {{ bgp.local_as }}
  neighbor {{ pgname }} capability extended-nexthop
 
 {%- if peergroup.neighbors is iterable %}
-{%- for remoteip, neighbor in peergroup.neighbors.iteritems() %}
+{%- for remoteip, neighbor in peergroup.neighbors.items() %}
  neighbor {{ remoteip }} remote-as {{ neighbor.remote_as }}
  neighbor {{ remoteip }} peer-group {{ pgname }}
  neighbor {{ remoteip }} description {{ neighbor.description }}
@@ -88,7 +88,7 @@ route-map rm-all-ipv4-import-connected permit 10
  match ip address prefix-list pl-all-ipv4-ixp-address-range
 !
 {%- if bgp.out is iterable %}
-{%- for pgname, peergroup in bgp.out.iteritems()|sort %}
+{%- for pgname, peergroup in bgp.out.items()|sort %}
 {%- set rmname =  pgname|replace('pg-', 'rm-') %}
 route-map {{ rmname }}-in permit 10
  match ip address prefix-list pl-all-ipv4-ixp-address-range
