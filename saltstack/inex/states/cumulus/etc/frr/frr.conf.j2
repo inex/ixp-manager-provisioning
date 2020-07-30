@@ -54,6 +54,9 @@ router bgp {{ bgp.local_as }}
  neighbor {{ remoteip }} remote-as {{ neighbor.remote_as }}
  neighbor {{ remoteip }} peer-group {{ pgname }}
  neighbor {{ remoteip }} description {{ neighbor.description }}
+{%- if grains.get('ixpmanager', []) is iterable and "l3maint" in grains.get('ixpmanager', []) %}
+ neighbor {{ remoteip }} shutdown
+{%- endif %}
 {%- if neighbor.cost | default(false) %}
 {# FIXME: needs to be in route-map in frr: neighbor {{ remoteip }} metric-out {{ neighbor.cost }} #}
 {%- endif %}
