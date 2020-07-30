@@ -108,8 +108,8 @@ iface {{ iface.name }}
 {%- if iface.type == 'edge' %}
     mstpctl-portbpdufilter yes
     mstpctl-portadminedge yes
-{#- bridge learning needs to be disabled in favour of programmed macs #}
-    bridge-learning off
+{#- TODO: one day, bridge learning will be disabled in favour of programmed macs #}
+    bridge-learning on
 {%- elif iface.type == 'core' %}
 {%- if iface.stp|default(false) %}
     mstpctl-portpathcost {{ iface.cost|default(100) }}
