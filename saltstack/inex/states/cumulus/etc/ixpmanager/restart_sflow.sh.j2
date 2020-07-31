@@ -43,7 +43,7 @@ sleep 5
 
 {%- for iface in pillar.get('layer2interfaces', {}) %}
 
-{%- if iface.name|truncate(3, true, '') == 'swp' and iface.type == 'edge' %}
+{%- if iface.name[:3] == 'swp' and iface.type == 'edge' %}
 echo {{ iface.name }}': '{{ vars.sflow.samplerate[iface.speed] | default (vars.sflow.samplerate.default) }}', 0' > ${setfile}
 {%- endif %}
 
