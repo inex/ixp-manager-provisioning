@@ -26,15 +26,53 @@
 
 -#}
 
-#[iptables]
-#-A FORWARD -j DROP -i swp+ -p tcp -s 10.39.200.0/24 -d 10.39.200.0/24 --dport 179
-#-A FORWARD -j DROP -i swp+ -p tcp -s 10.39.200.0/24 -d 10.39.200.0/24 --sport 179
-#
-#[ip6tables]
-#-A FORWARD -j DROP -i swp+ -p tcp -s 2001:7f8:18:200::/64 -d 2001:7f8:18:200::/64 --dport 179
-#-A FORWARD -j DROP -i swp+ -p tcp -s 2001:7f8:18:200::/64 -d 2001:7f8:18:200::/64 --sport 179
+{%- from "cumulus/variables.j2" import vars with context %}
 
-{#- 
+[iptables]
+{%- if grains.get('ixpmanager', []) is iterable and "l2maint" in grains.get('ixpmanager', []) %}
+
+#######
+####### Layer2 Maintenance Flag Enabled -> blocking control plane BGP
+#######
+{%- for iface in pillar.get('layer2interfaces', {}) %}
+{%- set lagmaster = iface.lagmaster|default(false) %}
+{%- set lagmember = (iface.lagindex|default(false) and not lagmaster) %}
+
+# {{ iface.description|default() }} - {{ iface.name }}
+{%- if iface.shutdown|default(false) or lagmember %}
+# skipping because shutdown / lag member
+
+{%- else %}
+-A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ vars.ixpaddressblock.ipv4 }} -d {{ vars.ixpaddressblock.ipv4 }} --dport 179
+-A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ vars.ixpaddressblock.ipv4 }} -d {{ vars.ixpaddressblock.ipv4 }} --sport 179
+
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+
+[ip6tables]
+{%- if grains.get('ixpmanager', []) is iterable and "l2maint" in grains.get('ixpmanager', []) %}
+
+#######
+####### Layer2 Maintenance Flag Enabled -> blocking control plane BGP
+#######
+{%- for iface in pillar.get('layer2interfaces', {}) %}
+{%- set lagmaster = iface.lagmaster|default(false) %}
+{%- set lagmember = (iface.lagindex|default(false) and not lagmaster) %}
+
+# {{ iface.description|default() }} - {{ iface.name }}
+{%- if iface.shutdown|default(false) or lagmember %}
+# skipping because shutdown / lag member
+
+{%- else %}
+-A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ vars.ixpaddressblock.ipv6 }} -d {{ vars.ixpaddressblock.ipv6 }} --dport 179
+-A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ vars.ixpaddressblock.ipv6 }} -d {{ vars.ixpaddressblock.ipv6 }} --sport 179
+
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+
+{#-
 
 - bond interfaces are filtered on the bondX pseudointerface, not on the
   individual bearer interfaces
@@ -48,7 +86,7 @@
 
 # {{ iface.description|default() }}
 
-{#- permit LACPDUs for LAG bundle members #} 
+{#- permit LACPDUs for LAG bundle members #}
 {%- if iface.lagindex|default(false) and not iface.lagmaster|default(false) %}
 # LACPDUs
 -A FORWARD -i {{ iface.name }}   -j ACCEPT  -d 01:80:c2:00:00:02  -p 0x8809
