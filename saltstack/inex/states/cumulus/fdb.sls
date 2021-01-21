@@ -38,7 +38,8 @@
     - name: /etc/ixpmanager/sync-edgeport-macs.py
     - user: root
     - mode: 755
-  cmd.wait:
-    - watch:
-       - file: /etc/network/fdb.json
-    - name: '/etc/ixpmanager/sync-edgeport-macs.py'
+# FIXME: this is complex to get working reliably
+#  cmd.wait:
+#    - watch:
+#       - file: /etc/network/fdb.json
+#    - name: '/etc/ixpmanager/sync-edgeport-macs.py'
