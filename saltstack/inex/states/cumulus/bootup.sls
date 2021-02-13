@@ -35,6 +35,10 @@
     - mode: 755
     - makedirs: true
 
-/etc/rc.local.d/10-initialise-sflow:
+#/etc/rc.local.d/10-initialise-fdb:
+#  file.symlink:
+#    - target: /etc/ixpmanager/sync-edgeport-macs.py
+
+/etc/rc.local.d/20-initialise-sflow:
   file.symlink:
     - target: /etc/ixpmanager/restart_sflow.sh
