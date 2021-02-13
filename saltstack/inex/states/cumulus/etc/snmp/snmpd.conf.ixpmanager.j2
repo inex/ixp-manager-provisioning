@@ -44,6 +44,9 @@ view   systemonly  included   .1.0.8802.1.1.2
 view   systemonly  included   .1.3.6.1.4.1.40310.1
 view   systemonly  included   .1.3.6.1.4.1.40310.2
 
+# Process Monitor
+view   systemonly  included   .1.3.6.1.4.1.2021
+
 # Default Cumulus Configuration
 agentxperms 777 777 snmp snmp
 agentxsocket /var/agentx/master
@@ -62,3 +65,14 @@ pass_persist 1.3.6.1.4.1.40310.2 /usr/share/snmp/cl_drop_cntrs_pp.py
 rouser _snmptrapusernameX
 sysObjectID 1.3.6.1.4.1.40310
 sysServices 72
+
+# monitor specific processes to ensure they're still alive
+proc hsflowd 1 1
+proc ntpd 1 1
+proc switchd 1 1
+proc lldpd 2 2
+proc sshd 10 1
+
+# frr
+proc bgpd 1 1
+proc zebra 1 1
