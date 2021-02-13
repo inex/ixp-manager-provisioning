@@ -27,11 +27,11 @@
 #}
 
 hostname {{ pillar.proxy.host }}
-ip domain-name example.org
+dns domain example.org
 
 ip name-server vrf default 10.0.0.1
 
-vlan internal allocation policy descending
+vlan internal order descending
 spanning-tree mode mstp
 
 tacacs-server host 10.0.0.1 key mytacacsserverkey
@@ -40,7 +40,7 @@ aaa authentication login default group tacacs+ local
 
 no aaa root
 
-enable secret sha512 $6$foobar$foo
+enable password sha512 $6$foobar$foo
 username admin role network-admin privilege 15 secret sha512 $6$foobar$foo
 
 management api http-commands
@@ -66,7 +66,8 @@ snmp-server community {{ switchdata.snmpcommunity|default(vars.snmp.defaultcommu
 
 {# this is the address range of the vxlan network #}
 no ip prefix-list pl-all-ipv4-bgpcore-address-range
-ip prefix-list pl-all-ipv4-bgpcore-address-range permit 10.254.0.0/16 le 32
+ip prefix-list pl-all-ipv4-bgpcore-address-range
+   seq 10 permit 10.254.0.0/16 le 32
 
 no ip access-list standard al-ipv4-mgmt-access
 ip access-list standard al-ipv4-mgmt-access

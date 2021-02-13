@@ -106,7 +106,7 @@ interface {{ iface.name }}
   {# EOS pushes all this configuration to the LAG master interface #}
  channel-group {{ iface.lagindex }} mode active
 {% if iface.fastlacp|default(false) %}
-  lacp rate fast
+  lacp timer fast
 {% endif %}
 {% endif %}
 
@@ -114,10 +114,10 @@ interface {{ iface.name }}
  shutdown
 {% endif %}
 
-{% if iface.type == 'edge' and iface.virtualinterfaceid|default(false) is number %}
+{% if iface.type == 'edge' %}
 no mac access-list l2acl-ixp-viid{{ iface.virtualinterfaceid }}
 mac access-list l2acl-ixp-viid{{ iface.virtualinterfaceid }}
- statistics per-entry
+ counters per-entry
 
 {% for vlan in iface.vlans %}
 

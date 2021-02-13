@@ -75,10 +75,10 @@ route-map {{ rmname }}-out permit 10
 exit
 
 router bgp {{ bgp.local_as }}
-   neighbor {{ pgname }} peer-group
+   neighbor {{ pgname }} peer group
    neighbor {{ pgname }} description eBGP IXP session policy
-   neighbor {{ pgname }} fall-over bfd
-   neighbor {{ pgname }} soft-reconfiguration inbound all
+   neighbor {{ pgname }} bfd
+   neighbor {{ pgname }} rib-in pre-policy retain all
    neighbor {{ pgname }} timers 3 10
    neighbor {{ pgname }} route-map {{ rmname }}-in in
    neighbor {{ pgname }} route-map {{ rmname }}-out out
@@ -89,7 +89,7 @@ exit
 {% for remoteip, neighbor in peergroup.neighbors.items() %}
 
 router bgp {{ bgp.local_as }}
-   neighbor {{ remoteip }} peer-group {{ pgname }}
+   neighbor {{ remoteip }} peer group {{ pgname }}
    neighbor {{ remoteip }} remote-as {{ neighbor.remote_as }}
    neighbor {{ remoteip }} description {{ neighbor.description }}
    address-family ipv4

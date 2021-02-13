@@ -31,13 +31,13 @@
 
 vlan 999
  name the_moon
-no spanning-tree vlan 999
+no spanning-tree vlan-id 999
 
 {% for vlan in vlans %}
 no vlan {{ vlan.tag }}
 vlan {{ vlan.tag }}
  name {{ vlan.config_name }}
-no spanning-tree vlan {{ vlan.tag }}
+no spanning-tree vlan-id {{ vlan.tag }}
 {% endfor %}
 
 no interface Vxlan1
@@ -45,7 +45,7 @@ interface Vxlan1
  vxlan source-interface Loopback0
 
 {% for vlan in vlans %}
- vxlan vlan {{ vlan.tag }} vni {{ vlan.tag + 10000 }}
+ vxlan vlan add {{ vlan.tag }} vni {{ vlan.tag + 10000 }}
 {% endfor %}
 
  no vxlan flood vtep

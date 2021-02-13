@@ -59,7 +59,7 @@ interface {{ iface.name }}
 {% endif %}
 
 {% if iface.bfd|default(false) %}
- bfd interval 200 min_rx 200 multiplier 3
+ bfd interval 200 min-rx 200 multiplier 3
 {% else %}
   no bfd interval
 {% endif %}
