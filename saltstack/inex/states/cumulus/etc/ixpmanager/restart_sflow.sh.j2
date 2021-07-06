@@ -35,7 +35,7 @@ service hsflowd restart
 # hsflowd takes a small but noticeable (1s-2s) amount of time to settle down
 sleep 5
 
-for port in `ip link | grep swp | awk '{print $2}' | sed 's/://g'`; do
+for port in `ip link | egrep 'swp[0-9s]+:' | awk '{print $2}' | sed 's/://g'`; do
 	echo ${port}': 0, 0' > ${setfile}
 done
 
