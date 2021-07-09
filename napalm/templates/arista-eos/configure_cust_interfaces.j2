@@ -97,8 +97,11 @@ interface {{ iface.name }}
 
   {% if iface.type == 'edge' and iface.virtualinterfaceid|default(false) is number %}
  mac access-group l2acl-ixp-viid{{ iface.virtualinterfaceid }} in
-! ip access-group acl-ipv4-permit-all-except-bgp in
-! ipv6 access-group acl-ipv6-permit-all-except-bgp in
+
+    {%- if grains.get('ixpmanager', []) is iterable and "l2maint" in grains.get('ixpmanager', []) %}
+ ip access-group acl-ipv4-permit-all-except-bgp in
+ ipv6 access-group acl-ipv6-permit-all-except-bgp in
+    {% endif %}
 ! shutdown
   {% endif %}
 

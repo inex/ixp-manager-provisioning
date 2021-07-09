@@ -96,6 +96,9 @@ router bgp {{ bgp.local_as }}
       neighbor {{ remoteip }} activate
       neighbor {{ remoteip }} route-map rm-as{{ neighbor.remote_as }}-in in
    exit
+{%- if grains.get('ixpmanager', []) is iterable and "l3maint" in grains.get('ixpmanager', []) %}
+   neighbor {{ remoteip }} shutdown
+{%- endif %}
 exit
 
 {% endfor %}
