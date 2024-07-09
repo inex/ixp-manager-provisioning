@@ -28,7 +28,7 @@
     - name: /etc/network/ifupdown2/policy.d/interface.json
     - template: jinja
 
-{% if salt['grains.get']('lsb_distrib_codename') == 'buster' %}
+{% if salt['grains.get']('oscodename') == 'buster' %}
 ##
 ## restart ntp in default vrf and kill mgmt vrf instance
 ##

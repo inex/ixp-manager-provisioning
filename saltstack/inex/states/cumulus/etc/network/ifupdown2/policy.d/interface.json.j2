@@ -23,7 +23,7 @@
 ## Administratively disable all interfaces by default, unless they are
 ## explicitly configured in /etc/network/interfaces.d
 #}
-{% if salt['grains.get']('lsb_distrib_codename') == 'jessie' %}
+{% if salt['grains.get']('oscodename') == 'jessie' %}
 {% set defaults = {
     'ethtool': {
       'defaults': {
@@ -32,7 +32,7 @@
     },
   }
 %}
-{%  elif salt['grains.get']('lsb_distrib_codename') == 'buster' %}
+{%  elif salt['grains.get']('oscodename') == 'buster' %}
 {%- set defaults = {
     'ethtool': {
       'iface_defaults': {
