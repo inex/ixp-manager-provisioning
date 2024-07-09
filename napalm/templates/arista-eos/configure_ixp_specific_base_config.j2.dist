@@ -48,7 +48,7 @@ management api http-commands
 
 sflow sample 8192
 sflow polling-interval 30
-sflow destination 10.0.0.1
+sflow destination {{ vars.sflow.collector }}
 sflow source {{ pillar.bgp.routerid }}
 sflow run
 
@@ -62,7 +62,7 @@ clock timezone Europe/Dublin
 
 snmp-server contact IXP Operations <support@example.org>
 snmp-server location The Data Centre, DUB01
-snmp-server community {{ switchdata.snmpcommunity|default(vars.snmp.defaultcommunity) }} ro al-ipv4-snmp-access
+snmp-server community {{ pillar.switch.snmpcommunity }} ro al-ipv4-snmp-access
 
 {# this is the address range of the vxlan network #}
 no ip prefix-list pl-all-ipv4-bgpcore-address-range
@@ -80,13 +80,13 @@ ip access-list standard al-ipv4-snmp-access
 {# this is the ipv4 address range of the peering lan #}
 no ipv6 access-list acl-ipv6-permit-all-except-bgp
 ipv6 access-list acl-ipv6-permit-all-except-bgp
- deny tcp {{ vars.ixpaddressblock.ipv6 }} eq bgp {{ vars.ixpaddressblock.ipv6 }}
- deny tcp {{ vars.ixpaddressblock.ipv6 }} {{ vars.ixpaddressblock.ipv6 }} eq bgp
+ deny tcp {{ ixp.addressblock.ipv6 }} eq bgp {{ ixp.addressblock.ipv6 }}
+ deny tcp {{ ixp.addressblock.ipv6 }} {{ ixp.addressblock.ipv6 }} eq bgp
  permit ipv6 any any
 
 {# this is the ipv4 address range of the peering lan #}
 no ip access-list acl-ipv4-permit-all-except-bgp
 ip access-list acl-ipv4-permit-all-except-bgp
- deny tcp {{ vars.ixpaddressblock.ipv4 }} eq bgp {{ vars.ixpaddressblock.ipv4 }}
- deny tcp {{ vars.ixpaddressblock.ipv4 }} {{ vars.ixpaddressblock.ipv4 }} eq bgp
+ deny tcp {{ ixp.addressblock.ipv4 }} eq bgp {{ ixp.addressblock.ipv4 }}
+ deny tcp {{ ixp.addressblock.ipv4 }} {{ ixp.addressblock.ipv4 }} eq bgp
  permit ip any any
