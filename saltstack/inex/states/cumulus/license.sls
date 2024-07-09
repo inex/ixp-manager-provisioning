@@ -33,8 +33,9 @@ license:
     - name: "echo '{{ salt['pillar.get']('license') }}' | /usr/cumulus/bin/cl-license -i"
     - unless: /usr/cumulus/bin/cl-license
 
-switchd:
+switchd-license:
   service.running:
+    - name: switchd
     - enable: true
     - provider: systemd
     - watch:
