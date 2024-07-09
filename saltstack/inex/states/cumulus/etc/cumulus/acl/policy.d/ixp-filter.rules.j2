@@ -27,6 +27,7 @@
 -#}
 
 {%- from "cumulus/variables.j2" import vars with context %}
+{%- from "cumulus/variables.j2" import ixp with context %}
 
 [iptables]
 {%- if grains.get('ixpmanager', []) is iterable and "l2maint" in grains.get('ixpmanager', []) %}
@@ -43,8 +44,8 @@
 # skipping because shutdown / lag member
 
 {%- else %}
--A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ vars.ixpaddressblock.ipv4 }} -d {{ vars.ixpaddressblock.ipv4 }} --dport 179
--A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ vars.ixpaddressblock.ipv4 }} -d {{ vars.ixpaddressblock.ipv4 }} --sport 179
+-A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ ixp.addressblock.ipv4 }} -d {{ ixp.addressblock.ipv4 }} --dport 179
+-A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ ixp.addressblock.ipv4 }} -d {{ ixp.addressblock.ipv4 }} --sport 179
 
 {%- endif %}
 {%- endfor %}
@@ -65,8 +66,8 @@
 # skipping because shutdown / lag member
 
 {%- else %}
--A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ vars.ixpaddressblock.ipv6 }} -d {{ vars.ixpaddressblock.ipv6 }} --dport 179
--A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ vars.ixpaddressblock.ipv6 }} -d {{ vars.ixpaddressblock.ipv6 }} --sport 179
+-A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ ixp.addressblock.ipv6 }} -d {{ ixp.addressblock.ipv6 }} --dport 179
+-A FORWARD -j DROP -i {{ iface.name }} -p tcp -s  {{ ixp.addressblock.ipv6 }} -d {{ ixp.addressblock.ipv6 }} --sport 179
 
 {%- endif %}
 {%- endfor %}
