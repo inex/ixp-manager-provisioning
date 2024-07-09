@@ -28,6 +28,10 @@
 
 {%- from "cumulus/variables.j2" import vars with context %}
 
+## Previously this used portsamp, but portsamp is far too slow for resetting
+## sflow parameters.  Better to dump the intended values directly into the
+## HAL rather than waiting several seconds per port.
+
 setfile=/cumulus/switchd/config/traffic/sflow/portsamprate_set
 
 service hsflowd restart
